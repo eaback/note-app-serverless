@@ -1,0 +1,66 @@
+service: note-app-serverless
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: Edgar-Bergen
+  region: eu-north-1
+  iam:
+    role: arn:aws:iam::315723607325:role/role-serverless-lecture
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+functions:
+  getNotes:
+    handler: functions/getNotes/index.handler
+    events:
+      - httpApi:
+          path: '/notes'
+          method: GET
+
+  getNote:
+    handler: functions/getNoteById/index.handler
+    events:
+      - httpApi:
+          path: '/notes/{noteId}'
+          method: GET
+
+  postNotes:
+    handler: functions/postNotes/index.handler
+    events:
+      - httpApi:
+          path: '/notes'
+          method: POST
+
+  deleteNotes:
+    handler: functions/deleteNotes/index.handler
+    events:
+      - httpApi:
+          path: '/notes/{noteId}'
+          method: DELETE
+
+  putNotes:
+    handler: functions/putNotes/index.handler
+    events:
+      - httpApi:
+          path: '/notes/{noteId}'
+          method: PUT
+
+
+resources:
+  Resources:
+    notesDb:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: notes-db
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
